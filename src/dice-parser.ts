@@ -1,12 +1,14 @@
-import { getRandomOrgRandomIntegers } from "./random-numbers/RandomOrg"
-import { getRandomIntegers } from "./random-numbers/JavascriptRandom"
+import { getCacheMap } from "./parser/ParserCommon"
+import { getDiceRollAsync } from "./parser/ParserAsync"
 
 (async () => {
-  const roInts = await getRandomOrgRandomIntegers()
-  const jsInts = getRandomIntegers()
-
-  console.log(roInts)
-  console.log(jsInts)
+  console.log(getCacheMap().get('20'))
+  console.log((await getDiceRollAsync(20)))
+  console.log(getCacheMap().get('20'))
+  console.log((await getDiceRollAsync(20)))
+  console.log(getCacheMap().get('20'))
+  console.log((await getDiceRollAsync(20)))
+  console.log(getCacheMap().get('20'))
 })()
 
 export { }
