@@ -1,22 +1,16 @@
-import { name as moduleName, production as isModuleInProductionMode } from './package.json'
-import { resolve } from 'path'
-import { normalizePath, defineConfig } from 'vite'
-
-const everyWordToUpperCase = (sentence: string) => sentence
-  .split(' ')
-  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-  .join(' ')
+import {name as moduleName, production as isModuleInProductionMode} from './package.json'
+import {resolve} from 'path'
+import {normalizePath, defineConfig} from 'vite'
 
 export default defineConfig({
   build: {
     watch: isModuleInProductionMode ? null : {},
-    sourcemap: isModuleInProductionMode ? false : 'inline',
+    sourcemap: true,
     lib: {
-      entry: normalizePath(resolve(__dirname, `src/${moduleName}.ts`)),
-      name: everyWordToUpperCase(moduleName),
-      fileName: moduleName,
+      entry: normalizePath(resolve(__dirname, 'src/index.ts')),
+      fileName: 'index',
       formats: ['es'],
     },
-  }
+  },
 })
 
