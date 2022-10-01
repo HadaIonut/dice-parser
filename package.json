@@ -3,7 +3,7 @@
   "version": "1.0",
   "type": "module",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/dice-parser.js"
   },
   "files": [
     "dist"
