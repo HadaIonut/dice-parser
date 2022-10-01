@@ -1,8 +1,12 @@
-import { hasQuota } from "./RandomOrg"
+import { getRandomOrgRandomIntegers } from "./random-numbers/RandomOrg"
+import { getRandomIntegers } from "./random-numbers/JavascriptRandom"
 
 (async () => {
-  const q = await hasQuota()
-  console.log(q)
+  const roInts = await getRandomOrgRandomIntegers()
+  const jsInts = getRandomIntegers()
+
+  console.log(roInts)
+  console.log(jsInts)
 })()
 
 export { }

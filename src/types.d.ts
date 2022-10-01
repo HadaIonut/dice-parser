@@ -1,4 +1,4 @@
-export type RandomOrgIntegerUrlType = {
+export type RandomOrgRandomIntegerUrlType = {
   num?: number,
   min?: number,
   max?: number,
@@ -6,4 +6,10 @@ export type RandomOrgIntegerUrlType = {
   base?: number,
   format?: string,
   rnd?: string
+}
+
+export type RandomIntegerParamsType = {
+  num?: number,
+  min?: number,
+  max?: number
 }
