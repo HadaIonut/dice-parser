@@ -1,15 +1,10 @@
-import {getCacheMap} from './parser/ParserCommon'
-import {getDiceRollAsync} from './parser/ParserAsync'
-import {getDiceRollSync} from './parser/ParserSync'
+import {getCacheMap} from './parser/Parser'
+import {getDiceRoll} from './parser/Parser'
 
 (async () => {
-  console.log(getCacheMap().get('20'))
-  console.log((await getDiceRollSync(20)))
-  console.log(getCacheMap().get('20'))
-  console.log((await getDiceRollSync(20)))
-  console.log(getCacheMap().get('20'))
-  console.log((await getDiceRollSync(20)))
-  console.log(getCacheMap().get('20'))
+  console.log((await getDiceRoll(20)))
+  console.log((await getDiceRoll(20)))
+  console.log((await getDiceRoll(20)))
 })()
 
 export { }

@@ -1,3 +1,5 @@
+// DEPRECATED
+
 import type {RandomOrgRandomIntegerUrlType, RandomIntegerParamsType} from '../types'
 
 const randomOrgQuotaUrl = (format = 'plain'): string => `https://www.random.org/quota/?format=${format}`
@@ -37,3 +39,16 @@ export const getRandomOrgRandomIntegers = async ({num = 10, min = 1, max = 20}: 
     return []
   }
 }
+
+/* export const getDiceRollAsync = async (dice: number): Promise<number> => {
+  const id = `${dice}`
+
+  const isCached: boolean = hasCache(id)
+  if (isCached) return getFromCache(id) as number
+
+  const randomOrgGeneratedValues: number[] = await getRandomOrgRandomIntegers({max: dice})
+  const generatedValues: number[] = getRandomIntegers({max: dice})
+  const valueToCache: number[] = randomOrgGeneratedValues.length ? randomOrgGeneratedValues : generatedValues
+
+  return addToCache(id, valueToCache) as number
+} */
