@@ -1,5 +1,4 @@
-import {getCacheMap} from './parser/Parser'
-import {getDiceRoll} from './parser/Parser'
+import {getDiceRoll} from './parsers/TextParser'
 
 (async () => {
   console.log((await getDiceRoll(20)))

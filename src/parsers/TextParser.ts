@@ -1,4 +1,4 @@
-import {getRandomIntegers} from '../random-numbers/JavascriptRandom'
+import {getRandomIntegers} from '../random-number-generators/JavascriptRandom'
 
 const diceRollsCache: Map<string, number[]> = new Map<string, number[]>()
 
