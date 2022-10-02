@@ -13,3 +13,13 @@ export type RandomIntegerParamsType = {
   min?: number,
   max?: number
 }
+
+export type ParsedDiceResultType = {}
+
+export type ParseResultType = {
+  original: string,
+  parsed: string,
+  wasSuccessful: boolean,
+  matches: string[],
+  results: ParsedDiceResultType[]
+}

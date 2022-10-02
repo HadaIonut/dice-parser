@@ -1,20 +1,22 @@
-const l = (e, o) => Math.floor(Math.random() * (o - e + 1) + e), r = ({ num: e = 100, min: o = 1, max: t = 20 } = {}) => Array.from({ length: e }, () => l(o, t)), n = /* @__PURE__ */ new Map(), c = (e) => {
-  var o;
-  return n.has(e) && !!((o = n.get(e)) != null && o.length);
-}, g = (e, o) => {
-  const t = [...o], a = t.pop();
-  return n.set(e, t), a;
-}, h = (e) => {
-  if (!c(e))
-    return;
-  const o = [...n.get(e) || []], t = o.pop();
-  return n.set(e, o), t;
-}, s = (e) => {
-  const o = `${e}`;
-  if (c(o))
-    return h(o);
-  const a = r({ max: e });
-  return g(o, a);
+const e = /(?:\d+d\d+)(?:r|rr|x|xo|kh|kl|dh|dl|min|max|even|odd|cs|cf)?(?:>=|<=|>|<|=)?\d*/gim, r = (s) => {
+  const d = { original: s, parsed: s, wasSuccessful: !0, matches: [], results: [] };
+  try {
+    return d.matches = s.match(e) || [], d;
+  } catch (c) {
+    return console.error(c), d.wasSuccessful = !1, d;
+  }
 };
-(async () => (console.log(await s(20)), console.log(await s(20)), console.log(await s(20))))();
+(async () => {
+  const d = r(`
+    1d2 1d2 1d4 1d6 1d8 1d10 1d12 1d20 1d100 2d20 20d20 200d20
+    1d10r1 1d20r<10 1d20rr<3 5d10x10 1d20x<10kh 6d10xo10 5d10xo<8x10cs>=8
+    3d10k 4d6k3 2d20kh 3d10kl 4d6kl3 2d20kl 3d6d 4d10d2 3d6dh 4d10min2 4d10max8
+    10d20cs20 10d20cs>10 6d10cs>=6 1d100cs<=20 3d6even 5d10cs>=6df=1
+    5d10cs>=8x=10 5d10cs>=8x>=9 10d10cs>=8x>=8 10d20cf20 10d20cf>10 6d10cf>=6
+    1d100cf<=20 4d6cs6df1 10d10cs>5df1 1d10cs=10df=1 3d6sf<3 3d6ms10
+    Ana are 1d6 mere.
+    Ion a dat 1d8 bludgeoning dmg cu lopata.
+  `);
+  console.log(d);
+})();
 //# sourceMappingURL=index.js.map
