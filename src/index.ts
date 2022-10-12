@@ -9,7 +9,7 @@ import {parse} from './parsers/Parser'
     5d10cs>=8x=10 5d10cs>=8x>=9 10d10cs>=8x>=8 10d20cf20 10d20cf>10 6d10cf>=6
     1d100cf<=20 4d6cs6df1 10d10cs>5df1 1d10cs=10df=1 3d6sf<3 3d6ms10
     Ana are 1d6 mere.
-    Ion a dat 1d8 bludgeoning dmg cu lopata.
+    Ion a luat 1d8 slashing dmg de la sapa.
   `
   const result = parse(testText)
   console.log(result)
