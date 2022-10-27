@@ -14,12 +14,11 @@ export type RandomIntegerParamsType = {
   max?: number
 }
 
-export type ParsedDiceResultType = {}
+export type ParsedDiceResultType = any
 
 export type ParseResultType = {
   original: string,
   parsed: string,
   wasSuccessful: boolean,
-  matches: string[],
   results: ParsedDiceResultType[]
 }
