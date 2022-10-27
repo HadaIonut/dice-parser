@@ -1,4 +1,4 @@
-import {parse} from './parsers/Parser'
+import { parse } from './parsers/Parser'
 
 (async () => {
   const testText = `
@@ -12,6 +12,8 @@ import {parse} from './parsers/Parser'
     Ion a luat 1d8 slashing dmg de la sapa.
   `
   const result = parse(testText)
+  console.log(result.original)
+  console.log(result.parsed)
   console.log(result)
 })()
 

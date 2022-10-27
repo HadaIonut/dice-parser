@@ -1,7 +1,8 @@
 import type { ParseResultType } from '../types'
 import { getMultipleDiceRolls } from './RollsProvider'
 
-const ALL_TYPES_OF_DICE_REGEX = /(?:\d+d\d+)(?:r|rr|x|xo|kh|kl|dh|dl|min|max|even|odd|cs|cf)?(?:>=|<=|>|<|=)?\d*/gim
+const ALL_TYPES_OF_DICE_REGEX = /(?:\d+d\d+)(?:rr|r|xo|x|kh|kl|dh|dl|min|max|even|odd|cs|cf)?(?:>=|<=|>|<|=)?\d*/gim
+const REROLL_DICE_REGEX = /^(\d+)d(\d+)(rr|r)(>=|<=|>|<)?(\d+)$/gim
 const STANDARD_DICE_REGEX = /^(\d+)d(\d+)$/gim
 
 export const parseOriginalString = (parsedObj: ParseResultType): ParseResultType => {
@@ -14,10 +15,31 @@ export const parseOriginalString = (parsedObj: ParseResultType): ParseResultType
     const { m, result, start, end } = res
 
     if (typeof result === 'undefined') continue
-    parsedWithResults = `${parsedWithResults.substring(0, start - lengthChanged)}${result}${parsedWithResults.substring(end - lengthChanged, parsedWithResults.length)}`
+    parsedWithResults = parsedWithResults.substring(0, start - lengthChanged)
+      + result
+      + parsedWithResults.substring(end - lengthChanged, parsedWithResults.length)
+
     lengthChanged += m.length - `${result}`.length
   }
   return { ...parsedObj, parsed: parsedWithResults }
+}
+
+export const rerollDiceParser = (parsedObj: ParseResultType): ParseResultType => {
+  const parsedResults = parsedObj.results.map((result) => {
+    const { m } = result
+    if (!m.match(REROLL_DICE_REGEX)) return result
+
+    const [_, numberOfDiceString, diceValueString, rerollString, operationString, rerollValueString] = REROLL_DICE_REGEX.exec(m) as RegExpExecArray
+    const numberOfDice = Number(numberOfDiceString)
+    const diceValue = Number(diceValueString)
+    const rerollValue = Number(rerollValueString)
+
+    const diceRolls = getMultipleDiceRolls(numberOfDice, diceValue)
+    const diceSum = diceRolls.reduce((res, dice) => res + dice, 0)
+    return { ...result, rolls: diceRolls, result: diceSum }
+  })
+
+  return { ...parsedObj, results: parsedResults }
 }
 
 export const standardDiceParser = (parsedObj: ParseResultType): ParseResultType => {
@@ -49,6 +71,7 @@ export const parse = (text: string): ParseResultType => {
       return { m: res, start, end }
     })
 
+    parsedObj = rerollDiceParser(parsedObj)
     parsedObj = standardDiceParser(parsedObj)
 
     return parseOriginalString(parsedObj)
