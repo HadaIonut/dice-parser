@@ -31,4 +31,6 @@ export type ExplodeMap = {[key in ExplodeTypes] : ExplodeUntilTypes}
 
 export type DiceKeepTypes = 'kh' | 'kl' | 'dl' | 'dh'
 
+export type MinMaxTypes = 'min' | 'max' | undefined
+
 export type RerollCondition = '>='|'<='|'>'|'<'|'='

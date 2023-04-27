@@ -4,20 +4,47 @@ import {
   getMultipleDiceRollsUntil, recursiveRerollDice,
   rerollDice
 } from './RollsProvider'
-import {DiceKeepTypes, ExplodeMap, ExplodeTypes, ExplodeUntilTypes} from "../types";
+import {DiceKeepTypes, ExplodeMap, ExplodeTypes, ExplodeUntilTypes, MinMaxTypes} from "../types";
 import {findGreatestN, findSmallestN} from "../utils/peaks";
 import {sumArray} from "../utils/sum";
 
 const ALL_TYPES_OF_DICE_REGEX = /(?:\d+d\d+)(?:rr|r|xo|x|kh|kl|dh|dl|min|max|even|odd|cs|cf)?(?:>=|<=|>|<|=)?\d*/gim
 const REROLL_DICE_REGEX = /^(\d+)d(\d+)(rr|r)(>=|<=|>|<)?(\d+)$/gim
-const EXPLODING_DICE_REGEX = /^(\d+)d(\d+)(x<|x>|xo|x)(\d+)(kh|kl|dl|dh)?(\d+)?$/gim
-const STANDARD_DICE_REGEX = /^(\d+)d(\d+)(kh|kl|dl|dh)?(\d+)?$/gim
+const EXPLODING_DICE_REGEX = /^(\d+)d(\d+)(x<|x>|xo|x)(\d+)(kh|kl|dl|dh|min|max|)?(\d+)?$/gim
+const STANDARD_DICE_REGEX = /^(\d+)d(\d+)(kh|kl|dl|dh|min|max|)?(\d+)?$/gim
 
 const explodeToSignMap: ExplodeMap = {
   x: '=',
   'x<': '<',
   'x>': '>',
   'xo': 'o'
+}
+
+export const keepDice = (keepType: DiceKeepTypes, keepCount: number, diceRolls: number[]) => {
+  if (keepType === 'kh') return findGreatestN(diceRolls, keepCount)
+  if (keepType === 'kl') return findSmallestN(diceRolls, keepCount)
+  if (keepType === 'dh') return findSmallestN(diceRolls, diceRolls.length - keepCount)
+  if (keepType === 'dl') return findGreatestN(diceRolls, diceRolls.length - keepCount)
+
+  return diceRolls
+}
+
+export const applyMinMax = (modifierType: MinMaxTypes, modifierCap: number, diceRolls: number[]) => {
+  if (modifierType === 'min') return diceRolls.map((roll) => roll <= modifierCap ? modifierCap : roll)
+  if (modifierType === 'max') return diceRolls.map((roll) => roll >= modifierCap ? modifierCap : roll)
+
+  return diceRolls
+}
+
+export const applyEndModifiers = (modifier: DiceKeepTypes | MinMaxTypes, target: number, diceRolls: number[]) => {
+  return applyMinMax(modifier as MinMaxTypes, target, keepDice(modifier as DiceKeepTypes, target, diceRolls))
+}
+
+export const getRerollValues = (rolledValues: number[], rerollCondition: RerollCondition, rerollTarget: number, diceType: number, rerollType: string) => {
+  if (rerollType === 'r') return rerollDice(rolledValues, rerollCondition as RerollCondition ?? '=', rerollTarget, diceType)
+  if (rerollType === 'rr') return recursiveRerollDice(rolledValues, rerollCondition as RerollCondition ?? '=', rerollTarget, diceType)
+
+  return [[], rolledValues]
 }
 
 export const parseOriginalString = (parsedObj: ParseResultType): ParseResultType => {
@@ -51,27 +78,14 @@ export const rerollDiceParser = (parsedObj: ParseResultType): ParseResultType =>
 
     const diceRolls = getMultipleDiceRolls(numberOfDice, diceValue)
 
-    if (rerollString === 'r') {
-      const [rerollDiceValues, diceToSum] = rerollDice(diceRolls, operationString as RerollCondition ?? '=', rerollValue, diceValue)
+    const [rerollDiceValues, diceToSum] = getRerollValues(diceRolls, operationString as RerollCondition ?? '=', rerollValue, diceValue, rerollString)
 
-      return {
-        ...result,
-        rolls: [...diceRolls, ...rerollDiceValues],
-        rollsUsed: diceToSum,
-        result: sumArray(diceToSum)
-      }
-    } else if (rerollString === 'rr') {
-      const [rerolledValues, diceToSum] = recursiveRerollDice(diceRolls, operationString as RerollCondition, rerollValue, diceValue)
-
-      return {
-        ...result,
-        rolls: rerolledValues,
-        rollsUsed: diceToSum,
-        result: sumArray(diceToSum)
-      }
+    return {
+      ...result,
+      rolls: [...diceRolls, ...rerollDiceValues],
+      rollsUsed: diceToSum,
+      result: sumArray(diceToSum)
     }
-
-    return {...result, rolls: diceRolls, result: sumArray(diceRolls)}
   })
 
   return {...parsedObj, results: parsedResults}
@@ -92,20 +106,11 @@ export const standardDiceParser = (parsedObj: ParseResultType): ParseResultType 
     return {
       ...result,
       rolls: diceRolls,
-      result: sumArray(keepDice(keepType as DiceKeepTypes, Number(keepCount ?? 1), diceRolls))
+      result: sumArray(applyEndModifiers(keepType as DiceKeepTypes, Number(keepCount ?? 1), diceRolls))
     }
   })
 
   return {...parsedObj, results: parsedResults}
-}
-
-export const keepDice = (keepType: DiceKeepTypes, keepCount: number, diceRolls: number[]) => {
-  if (keepType === 'kh') return findGreatestN(diceRolls, keepCount)
-  if (keepType === 'kl') return findSmallestN(diceRolls, keepCount)
-  if (keepType === 'dh') return findSmallestN(diceRolls, diceRolls.length - keepCount)
-  if (keepType === 'dl') return findGreatestN(diceRolls, diceRolls.length - keepCount)
-
-  return diceRolls
 }
 
 export const explodingDiceParser = (parsedObj: ParseResultType): ParseResultType => {
@@ -127,7 +132,7 @@ export const explodingDiceParser = (parsedObj: ParseResultType): ParseResultType
     return {
       ...result,
       rolls: diceRolls,
-      result: sumArray(keepDice(keepType as DiceKeepTypes, Number(keepCount ?? 1), diceRolls))
+      result: sumArray(applyEndModifiers(keepType as DiceKeepTypes, Number(keepCount ?? 1), diceRolls))
     }
   })
 
