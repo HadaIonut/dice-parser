@@ -1,37 +1,37 @@
-const v = (e, s) => Math.floor(Math.random() * (s - e + 1) + e), w = ({ num: e = 20, min: s = 1, max: r = 20 } = {}) => Array.from({ length: e }, () => v(s, r)), g = /* @__PURE__ */ new Map(), k = (e) => {
+const I = (e, s) => Math.floor(Math.random() * (s - e + 1) + e), V = ({ num: e = 20, min: s = 1, max: r = 20 } = {}) => Array.from({ length: e }, () => I(s, r)), x = /* @__PURE__ */ new Map(), k = (e) => {
   var s;
-  return g.has(e) && !!((s = g.get(e)) != null && s.length);
+  return x.has(e) && !!((s = x.get(e)) != null && s.length);
 }, M = (e, s) => {
   const r = [...s], t = r.pop();
-  return g.set(e, r), t;
+  return x.set(e, r), t;
 }, O = (e) => {
   if (!k(e))
     return;
-  const s = [...g.get(e) || []], r = s.pop();
-  return g.set(e, s), r;
+  const s = [...x.get(e) || []], r = s.pop();
+  return x.set(e, s), r;
 }, D = (e) => {
   if (k(e))
     return O(e);
-  const r = w({ max: e });
+  const r = V({ max: e });
   return M(e, r);
-}, A = (e, s) => Array.from({ length: e }, () => D(s)), x = (e, s, r, t = []) => {
+}, w = (e, s) => Array.from({ length: e }, () => D(s)), R = (e, s, r, t = []) => {
   const c = D(e), n = [...t, c];
   switch (s) {
     case "<":
-      return c >= r ? n : x(e, s, r, n);
+      return c >= r ? n : R(e, s, r, n);
     case ">":
-      return c <= r ? n : x(e, s, r, n);
+      return c <= r ? n : R(e, s, r, n);
     case "=":
-      return c === r ? x(e, s, r, n) : n;
+      return c === r ? R(e, s, r, n) : n;
     case "o":
       return [c, D(e)];
   }
-}, V = (e, s, r, t) => {
+}, C = (e, s, r, t) => {
   let c = [];
   for (let n = 0; n < t; n++)
-    c = [...c, ...x(e, s, r)];
+    c = [...c, ...R(e, s, r)];
   return c;
-}, C = (e, s, r) => {
+}, A = (e, s, r) => {
   switch (s) {
     case "=":
       return e === r;
@@ -47,12 +47,21 @@ const v = (e, s) => Math.floor(Math.random() * (s - e + 1) + e), w = ({ num: e =
 }, G = (e, s, r, t) => {
   const c = [], n = [...e];
   for (const l in e)
-    if (C(e[l], s, r)) {
-      const d = D(t);
-      c.push(d), n[l] = d;
+    if (A(e[l], s, r)) {
+      const o = D(t);
+      c.push(o), n[l] = o;
     }
   return [c, n];
-}, N = (e, s) => (e.sort((r, t) => r - t), e.slice(0, s)), R = (e, s) => (e.sort((r, t) => t - r), e.slice(0, s)), h = (e) => e.reduce((s, r) => s + r, 0), L = /(?:\d+d\d+)(?:rr|r|xo|x|kh|kl|dh|dl|min|max|even|odd|cs|cf)?(?:>=|<=|>|<|=)?\d*/gim, E = /^(\d+)d(\d+)(rr|r)(>=|<=|>|<)?(\d+)$/gim, p = /^(\d+)d(\d+)(x<|x>|xo|x)(\d+)(kh|kl|dl|dh)?(\d+)?$/gim, _ = /^(\d+)d(\d+)(kh|kl|dl|dh)?(\d+)?$/gim, P = {
+}, L = (e, s, r, t) => {
+  const c = [...e];
+  let n = [...e];
+  for (const l in n)
+    for (; !A(n[l], s, r); ) {
+      const o = D(t);
+      c.push(o), n[l] = o;
+    }
+  return [c, n];
+}, b = (e, s) => (e.sort((r, t) => r - t), e.slice(0, s)), N = (e, s) => (e.sort((r, t) => t - r), e.slice(0, s)), h = (e) => e.reduce((s, r) => s + r, 0), P = /(?:\d+d\d+)(?:rr|r|xo|x|kh|kl|dh|dl|min|max|even|odd|cs|cf)?(?:>=|<=|>|<|=)?\d*/gim, p = /^(\d+)d(\d+)(rr|r)(>=|<=|>|<)?(\d+)$/gim, E = /^(\d+)d(\d+)(x<|x>|xo|x)(\d+)(kh|kl|dl|dh)?(\d+)?$/gim, _ = /^(\d+)d(\d+)(kh|kl|dl|dh)?(\d+)?$/gim, T = {
   x: "=",
   "x<": "<",
   "x>": ">",
@@ -61,61 +70,69 @@ const v = (e, s) => Math.floor(Math.random() * (s - e + 1) + e), w = ({ num: e =
   const { parsed: s, results: r } = e;
   let t = s, c = 0;
   for (let n = 0; n < r.length; n++) {
-    const l = r[n], { m: d, result: o, start: a, end: u } = l;
-    typeof o > "u" || (t = t.substring(0, a - c) + o + t.substring(u - c, t.length), c += d.length - `${o}`.length);
+    const l = r[n], { m: o, result: d, start: a, end: i } = l;
+    typeof d > "u" || (t = t.substring(0, a - c) + d + t.substring(i - c, t.length), c += o.length - `${d}`.length);
   }
   return { ...e, parsed: t };
-}, $ = (e) => {
-  const s = e.results.map((r) => {
-    const { m: t } = r;
-    if (!t.match(E))
-      return r;
-    const [c, n, l, d, o, a] = E.exec(t), u = Number(n), i = Number(l), b = Number(a), m = A(u, i);
-    if (d === "r") {
-      const [f, S] = G(m, o != null ? o : "=", b, i);
-      return {
-        ...r,
-        rolls: [...m, ...f],
-        rollsUsed: S,
-        result: h(S)
-      };
-    }
-    return { ...r, rolls: m, result: h(m) };
-  });
-  return { ...e, results: s };
 }, y = (e) => {
-  const s = e.results.map((r) => {
-    const { m: t } = r;
-    if (!t.match(_))
-      return r;
-    const [c, n, l, d, o] = _.exec(t), a = Number(n), u = Number(l), i = A(a, u);
-    return d ? {
-      ...r,
-      rolls: i,
-      result: h(I(d, Number(o != null ? o : 1), i))
-    } : { ...r, rolls: i, result: h(i) };
-  });
-  return { ...e, results: s };
-}, I = (e, s, r) => e === "kh" ? R(r, s) : e === "kl" ? N(r, s) : e === "dh" ? N(r, r.length - s) : e === "dl" ? R(r, r.length - s) : r, U = (e) => {
   const s = e.results.map((r) => {
     const { m: t } = r;
     if (!t.match(p))
       return r;
-    const [c, n, l, d, o, a, u] = p.exec(t), i = Number(n), b = Number(l), m = Number(o), f = V(b, P[d], m, i);
+    const [c, n, l, o, d, a] = p.exec(t), i = Number(n), u = Number(l), S = Number(a), f = w(i, u);
+    if (o === "r") {
+      const [m, g] = G(f, d != null ? d : "=", S, u);
+      return {
+        ...r,
+        rolls: [...f, ...m],
+        rollsUsed: g,
+        result: h(g)
+      };
+    } else if (o === "rr") {
+      const [m, g] = L(f, d, S, u);
+      return {
+        ...r,
+        rolls: m,
+        rollsUsed: g,
+        result: h(g)
+      };
+    }
+    return { ...r, rolls: f, result: h(f) };
+  });
+  return { ...e, results: s };
+}, U = (e) => {
+  const s = e.results.map((r) => {
+    const { m: t } = r;
+    if (!t.match(_))
+      return r;
+    const [c, n, l, o, d] = _.exec(t), a = Number(n), i = Number(l), u = w(a, i);
+    return o ? {
+      ...r,
+      rolls: u,
+      result: h(v(o, Number(d != null ? d : 1), u))
+    } : { ...r, rolls: u, result: h(u) };
+  });
+  return { ...e, results: s };
+}, v = (e, s, r) => e === "kh" ? N(r, s) : e === "kl" ? b(r, s) : e === "dh" ? b(r, r.length - s) : e === "dl" ? N(r, r.length - s) : r, $ = (e) => {
+  const s = e.results.map((r) => {
+    const { m: t } = r;
+    if (!t.match(E))
+      return r;
+    const [c, n, l, o, d, a, i] = E.exec(t), u = Number(n), S = Number(l), f = Number(d), m = C(S, T[o], f, u);
     return a ? {
       ...r,
-      rolls: f,
-      result: h(I(a, Number(u != null ? u : 1), f))
-    } : { ...r, rolls: f, result: h(f) };
+      rolls: m,
+      result: h(v(a, Number(i != null ? i : 1), m))
+    } : { ...r, rolls: m, result: h(m) };
   });
   return { ...e, results: s };
 }, F = (e) => {
   let s = { original: e, parsed: e, wasSuccessful: !0, results: [] };
   try {
-    return s.results = Array.from(e.matchAll(L), (r) => {
+    return s.results = Array.from(e.matchAll(P), (r) => {
       const t = r[0], { index: c } = r, n = c + t.length;
       return { m: t, start: c, end: n };
-    }), s = U(s), s = $(s), s = y(s), X(s);
+    }), s = $(s), s = y(s), s = U(s), X(s);
   } catch (r) {
     return console.error(r), s.wasSuccessful = !1, s;
   }

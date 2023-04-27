@@ -72,12 +72,6 @@ const rollMatchesTarget = (rolledValue: number, rerollCondition: RerollCondition
   }
 }
 
-const rollArrayMatchesTarget = (rolledValues: number[], rerollCondition: RerollCondition, rerollTarget: number) =>
-  rolledValues.every((rolledValue) => {
-    console.log(rolledValue, rollMatchesTarget(rolledValue, rerollCondition, rerollTarget), rerollCondition, rerollTarget)
-    return rollMatchesTarget(rolledValue, rerollCondition, rerollTarget)
-  })
-
 export const rerollDice = (rolledValues: number[], rerollCondition: RerollCondition, rerollTarget: number, diceType: number) => {
   const rerolledDice = []
   const diceToSum = [...rolledValues]
@@ -89,5 +83,20 @@ export const rerollDice = (rolledValues: number[], rerollCondition: RerollCondit
     }
   }
   return [rerolledDice, diceToSum]
+}
+
+export const recursiveRerollDice = (rolledValues: number[], rerollCondition: RerollCondition, rerollTarget: number, diceType: number) => {
+  const rerolledValues = [...rolledValues]
+  let diceToSum = [...rolledValues]
+
+  for (const diceToSumKey in diceToSum) {
+    while (!rollMatchesTarget(diceToSum[diceToSumKey], rerollCondition, rerollTarget)) {
+      const newRoll = getDiceRoll(diceType)
+      rerolledValues.push(newRoll)
+      diceToSum[diceToSumKey] = newRoll
+    }
+  }
+
+  return [rerolledValues, diceToSum]
 }
 

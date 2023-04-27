@@ -1,7 +1,7 @@
 import type {ParseResultType, RerollCondition} from '../types'
 import {
   getMultipleDiceRolls,
-  getMultipleDiceRollsUntil,
+  getMultipleDiceRollsUntil, recursiveRerollDice,
   rerollDice
 } from './RollsProvider'
 import {DiceKeepTypes, ExplodeMap, ExplodeTypes, ExplodeUntilTypes} from "../types";
@@ -61,14 +61,14 @@ export const rerollDiceParser = (parsedObj: ParseResultType): ParseResultType =>
         result: sumArray(diceToSum)
       }
     } else if (rerollString === 'rr') {
-      // const allRerolls = recursiveRerollDice(diceRolls, operationString as RerollCondition, rerollValue, diceValue)
-      //
-      // return {
-      //   ...result,
-      //   rolls: allRerolls,
-      //   rollsUsed: allRerolls.slice(-numberOfDice),
-      //   result: 0
-      // }
+      const [rerolledValues, diceToSum] = recursiveRerollDice(diceRolls, operationString as RerollCondition, rerollValue, diceValue)
+
+      return {
+        ...result,
+        rolls: rerolledValues,
+        rollsUsed: diceToSum,
+        result: sumArray(diceToSum)
+      }
     }
 
     return {...result, rolls: diceRolls, result: sumArray(diceRolls)}
