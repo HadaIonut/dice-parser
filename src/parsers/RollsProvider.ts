@@ -62,13 +62,13 @@ const rollMatchesTarget = (rolledValue: number, rerollCondition: RerollCondition
     case "=":
       return rolledValue === rerollTarget;
     case ">":
-      return rolledValue < rerollTarget;
-    case "<":
       return rolledValue > rerollTarget;
+    case "<":
+      return rolledValue < rerollTarget;
     case "<=":
-      return rolledValue >= rerollTarget;
-    case ">=":
       return rolledValue <= rerollTarget;
+    case ">=":
+      return rolledValue >= rerollTarget;
   }
 }
 
@@ -90,7 +90,7 @@ export const recursiveRerollDice = (rolledValues: number[], rerollCondition: Rer
   let diceToSum = [...rolledValues]
 
   for (const diceToSumKey in diceToSum) {
-    while (!rollMatchesTarget(diceToSum[diceToSumKey], rerollCondition, rerollTarget)) {
+    while (rollMatchesTarget(diceToSum[diceToSumKey], rerollCondition, rerollTarget)) {
       const newRoll = getDiceRoll(diceType)
       rerolledValues.push(newRoll)
       diceToSum[diceToSumKey] = newRoll

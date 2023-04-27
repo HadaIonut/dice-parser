@@ -36,13 +36,13 @@ const I = (e, s) => Math.floor(Math.random() * (s - e + 1) + e), V = ({ num: e =
     case "=":
       return e === r;
     case ">":
-      return e < r;
-    case "<":
       return e > r;
+    case "<":
+      return e < r;
     case "<=":
-      return e >= r;
-    case ">=":
       return e <= r;
+    case ">=":
+      return e >= r;
   }
 }, G = (e, s, r, t) => {
   const c = [], n = [...e];
@@ -56,7 +56,7 @@ const I = (e, s) => Math.floor(Math.random() * (s - e + 1) + e), V = ({ num: e =
   const c = [...e];
   let n = [...e];
   for (const l in n)
-    for (; !A(n[l], s, r); ) {
+    for (; A(n[l], s, r); ) {
       const o = D(t);
       c.push(o), n[l] = o;
     }
