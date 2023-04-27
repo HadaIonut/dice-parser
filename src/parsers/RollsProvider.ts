@@ -1,5 +1,5 @@
 import {getRandomIntegers} from '../random-number-generators/JavascriptRandom'
-import {ExplodeUntilTypes} from "../types";
+import {ExplodeUntilTypes, RerollCondition} from "../types";
 
 const diceRollsCache: Map<number, number[]> = new Map<number, number[]>()
 
@@ -31,7 +31,7 @@ export const getDiceRoll = (dice: number): number => {
 }
 export const getMultipleDiceRolls = (num: number, dice: number): number[] => Array.from({length: num}, () => getDiceRoll(dice))
 
-export const getDiceRollUntil = (dice: number, targetType: ExplodeUntilTypes, target:number, outArray:number[] = []): number[] => {
+export const getDiceRollUntil = (dice: number, targetType: ExplodeUntilTypes, target: number, outArray: number[] = []): number[] => {
   const diceValue = getDiceRoll(dice);
   const iterations = [...outArray, diceValue];
   switch (targetType) {
@@ -42,17 +42,52 @@ export const getDiceRollUntil = (dice: number, targetType: ExplodeUntilTypes, ta
       if (diceValue <= target) return iterations
       return getDiceRollUntil(dice, targetType, target, iterations)
     case "=":
-      if (diceValue === target) return  getDiceRollUntil(dice, targetType, target, iterations)
+      if (diceValue === target) return getDiceRollUntil(dice, targetType, target, iterations)
       return iterations
     case "o":
       return [diceValue, getDiceRoll(dice)] as number[]
   }
 }
 
-export const getMultipleDiceRollsUntil = (dice: number, targetType: ExplodeUntilTypes, target:number, count: number) => {
-  let out:number[] = []
+export const getMultipleDiceRollsUntil = (dice: number, targetType: ExplodeUntilTypes, target: number, count: number) => {
+  let out: number[] = []
   for (let i = 0; i < count; i++) {
     out = [...out, ...getDiceRollUntil(dice, targetType, target)]
   }
   return out
 }
+
+const rollMatchesTarget = (rolledValue: number, rerollCondition: RerollCondition, rerollTarget: number) => {
+  switch (rerollCondition) {
+    case "=":
+      return rolledValue === rerollTarget;
+    case ">":
+      return rolledValue < rerollTarget;
+    case "<":
+      return rolledValue > rerollTarget;
+    case "<=":
+      return rolledValue >= rerollTarget;
+    case ">=":
+      return rolledValue <= rerollTarget;
+  }
+}
+
+const rollArrayMatchesTarget = (rolledValues: number[], rerollCondition: RerollCondition, rerollTarget: number) =>
+  rolledValues.every((rolledValue) => {
+    console.log(rolledValue, rollMatchesTarget(rolledValue, rerollCondition, rerollTarget), rerollCondition, rerollTarget)
+    return rollMatchesTarget(rolledValue, rerollCondition, rerollTarget)
+  })
+
+export const rerollDice = (rolledValues: number[], rerollCondition: RerollCondition, rerollTarget: number, diceType: number) => {
+  const rerolledDice = []
+  const diceToSum = [...rolledValues]
+  for (const rolledValueKey in rolledValues) {
+    if (rollMatchesTarget(rolledValues[rolledValueKey], rerollCondition, rerollTarget)) {
+      const newRoll = getDiceRoll(diceType)
+      rerolledDice.push(newRoll)
+      diceToSum[rolledValueKey] = newRoll
+    }
+  }
+  return [rerolledDice, diceToSum]
+}
+
