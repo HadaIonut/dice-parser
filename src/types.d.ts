@@ -22,3 +22,11 @@ export type ParseResultType = {
   wasSuccessful: boolean,
   results: ParsedDiceResultType[]
 }
+
+export type ExplodeUntilTypes = '='|'<'|'>'|'o'
+
+export type ExplodeTypes = 'x' | 'x<' | 'x>' | 'xo'
+
+export type ExplodeMap = {[key in ExplodeTypes] : ExplodeUntilTypes}
+
+export type DiceKeepTypes = 'kh' | 'kl' | 'dl' | 'dh'

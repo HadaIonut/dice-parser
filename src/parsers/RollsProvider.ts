@@ -1,4 +1,5 @@
 import {getRandomIntegers} from '../random-number-generators/JavascriptRandom'
+import {ExplodeUntilTypes} from "../types";
 
 const diceRollsCache: Map<number, number[]> = new Map<number, number[]>()
 
@@ -29,3 +30,29 @@ export const getDiceRoll = (dice: number): number => {
   return addToCache(dice, generatedValues) as number
 }
 export const getMultipleDiceRolls = (num: number, dice: number): number[] => Array.from({length: num}, () => getDiceRoll(dice))
+
+export const getDiceRollUntil = (dice: number, targetType: ExplodeUntilTypes, target:number, outArray:number[] = []): number[] => {
+  const diceValue = getDiceRoll(dice);
+  const iterations = [...outArray, diceValue];
+  switch (targetType) {
+    case "<":
+      if (diceValue >= target) return iterations
+      return getDiceRollUntil(dice, targetType, target, iterations)
+    case ">":
+      if (diceValue <= target) return iterations
+      return getDiceRollUntil(dice, targetType, target, iterations)
+    case "=":
+      if (diceValue === target) return  getDiceRollUntil(dice, targetType, target, iterations)
+      return iterations
+    case "o":
+      return [diceValue, getDiceRoll(dice)] as number[]
+  }
+}
+
+export const getMultipleDiceRollsUntil = (dice: number, targetType: ExplodeUntilTypes, target:number, count: number) => {
+  let out:number[] = []
+  for (let i = 0; i < count; i++) {
+    out = [...out, ...getDiceRollUntil(dice, targetType, target)]
+  }
+  return out
+}

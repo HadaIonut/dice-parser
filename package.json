@@ -10,7 +10,8 @@
   ],
   "production": false,
   "scripts": {
-    "build": "tsc && vite build -c vite.config.ts"
+    "build": "tsc && vite build -c vite.config.ts",
+    "start": "node dist/index.js"
   },
   "devDependencies": {
     "sass": "^1.54.9",

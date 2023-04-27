@@ -1,0 +1,1 @@
+export const sumArray = (array: number[]) => array.reduce((res, num) => res + num, 0)
