@@ -57,7 +57,7 @@ export const getMultipleDiceRollsUntil = (dice: number, targetType: ExplodeUntil
   return out
 }
 
-const rollMatchesTarget = (rolledValue: number, condition: RerollCondition, target: number) => {
+export const rollMatchesTarget = (rolledValue: number, condition: RerollCondition, target: number) => {
   switch (condition) {
     case "=":
       return rolledValue === target;
@@ -115,3 +115,13 @@ export const countDice = (die: number, condition: RerollCondition, countType: st
   return die
 }
 
+export const explodeArray = (dice: number[], condition: RerollCondition, target: number, diceType: number) => {
+  const explodedArray = [...dice]
+
+  dice.forEach((die) => {
+    if (rollMatchesTarget(die, condition as RerollCondition, target))
+      explodedArray.push(getDiceRoll(diceType))
+  })
+
+  return explodedArray
+}

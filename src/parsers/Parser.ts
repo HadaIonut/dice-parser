@@ -2,16 +2,16 @@ import type {ParseResultType, RerollCondition} from '../types'
 import {
   getMultipleDiceRolls,
   getMultipleDiceRollsUntil, recursiveRerollDice,
-  rerollDice, countDice
+  rerollDice, countDice, rollMatchesTarget, getDiceRoll, explodeArray
 } from './RollsProvider'
 import {DiceKeepTypes, ExplodeMap, ExplodeTypes, ExplodeUntilTypes, MinMaxTypes} from "../types";
 import {findGreatestN, findSmallestN} from "../utils/peaks";
 import {sumArray} from "../utils/sum";
 
-const ALL_TYPES_OF_DICE_REGEX = /(?:\d+d\d+)(?:rr|r|xo|x|kh|kl|dh|dl|min|max|even|odd|cs|cf)?(?:>=|<=|>|<|=)?(\d)*(df)?(>=|<=|>|<|=)?(\d+)?/gim
+const ALL_TYPES_OF_DICE_REGEX = /(?:\d+d\d+)(?:rr|r|xo|x|kh|kl|dh|dl|min|max|even|odd|cs|cf)?(?:>=|<=|>|<|=)?(\d)*(df|x)?(>=|<=|>|<|=)?(\d+)?/gim
 const REROLL_DICE_REGEX = /^(\d+)d(\d+)(rr|r)(>=|<=|>|<)?(\d+)$/gim
 const EXPLODING_DICE_REGEX = /^(\d+)d(\d+)(x<|x>|xo|x)(\d+)(kh|kl|dl|dh|min|max|)?(\d+)?$/gim
-const COUNT_DICE_REGEX = /^(\d+)d(\d+)(cs|cf|even|odd)(>=|<=|>|<|=)?(\d+)?(df)?(>=|<=|>|<|=)?(\d+)?$/gim
+const COUNT_DICE_REGEX = /^(\d+)d(\d+)(cs|cf|even|odd)(>=|<=|>|<|=)?(\d+)?(df|x)?(>=|<=|>|<|=)?(\d+)?$/gim
 const STANDARD_DICE_REGEX = /^(\d+)d(\d+)(kh|kl|dl|dh|min|max|)?(\d+)?$/gim
 
 const explodeToSignMap: ExplodeMap = {
@@ -78,9 +78,18 @@ export const countDiceParser = (parsedObj: ParseResultType): ParseResultType => 
     const targetNumber = Number(targetNumberString);
     const difficultyTargetNumber = Number(difficultyTarget);
 
-    const diceRolls = getMultipleDiceRolls(numberOfDice, diceValue)
-    const countedDice = Math.abs(diceRolls.reduce((acc, cur) =>
-      acc + countDice(cur, condition as RerollCondition, countType, targetNumber, !!difficulty, difficultyCondition as RerollCondition, difficultyTargetNumber), 0))
+    let diceRolls = getMultipleDiceRolls(numberOfDice, diceValue)
+    let countedDice
+
+    if (difficulty === 'x') {
+      diceRolls = explodeArray(diceRolls, condition as RerollCondition, difficultyTargetNumber, diceValue)
+
+      countedDice = Math.abs(diceRolls.reduce((acc, cur) =>
+        acc + countDice(cur, condition as RerollCondition, countType, targetNumber, !!difficulty, "=", -1), 0))
+    } else {
+      countedDice = Math.abs(diceRolls.reduce((acc, cur) =>
+        acc + countDice(cur, condition as RerollCondition, countType, targetNumber, !!difficulty, difficultyCondition as RerollCondition, difficultyTargetNumber), 0))
+    }
 
     return {
       ...result,
