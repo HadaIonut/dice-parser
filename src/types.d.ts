@@ -29,8 +29,10 @@ export type ExplodeTypes = 'x' | 'x<' | 'x>' | 'xo'
 
 export type ExplodeMap = {[key in ExplodeTypes] : ExplodeUntilTypes}
 
-export type DiceKeepTypes = 'kh' | 'kl' | 'dl' | 'dh'
+export type DiceKeepTypes = 'kh' | 'kl' | 'dl' | 'dh' | 'k'
 
 export type MinMaxTypes = 'min' | 'max' | undefined
 
 export type RerollCondition = '>='|'<='|'>'|'<'|'='|'odd'|'even'
+
+export type DiceParserMappingFunction = (result: ParsedDiceResultType) => ParseResultType

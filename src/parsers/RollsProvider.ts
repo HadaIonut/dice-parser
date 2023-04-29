@@ -45,7 +45,8 @@ export const getDiceRollUntil = (dice: number, targetType: ExplodeUntilTypes, ta
       if (diceValue === target) return getDiceRollUntil(dice, targetType, target, iterations)
       return iterations
     case "o":
-      return [diceValue, getDiceRoll(dice)] as number[]
+      if (diceValue === target) return [diceValue, getDiceRoll(dice)] as number[]
+      return iterations
   }
 }
 
