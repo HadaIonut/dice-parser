@@ -33,4 +33,4 @@ export type DiceKeepTypes = 'kh' | 'kl' | 'dl' | 'dh'
 
 export type MinMaxTypes = 'min' | 'max' | undefined
 
-export type RerollCondition = '>='|'<='|'>'|'<'|'='
+export type RerollCondition = '>='|'<='|'>'|'<'|'='|'odd'|'even'

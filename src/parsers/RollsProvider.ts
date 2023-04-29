@@ -57,18 +57,22 @@ export const getMultipleDiceRollsUntil = (dice: number, targetType: ExplodeUntil
   return out
 }
 
-const rollMatchesTarget = (rolledValue: number, rerollCondition: RerollCondition, rerollTarget: number) => {
-  switch (rerollCondition) {
+const rollMatchesTarget = (rolledValue: number, condition: RerollCondition, target: number) => {
+  switch (condition) {
     case "=":
-      return rolledValue === rerollTarget;
+      return rolledValue === target;
     case ">":
-      return rolledValue > rerollTarget;
+      return rolledValue > target;
     case "<":
-      return rolledValue < rerollTarget;
+      return rolledValue < target;
     case "<=":
-      return rolledValue <= rerollTarget;
+      return rolledValue <= target;
     case ">=":
-      return rolledValue >= rerollTarget;
+      return rolledValue >= target;
+    case "even":
+      return rolledValue % 2 === 0
+    case "odd":
+      return rolledValue % 2 === 1
   }
 }
 
@@ -98,5 +102,16 @@ export const recursiveRerollDice = (rolledValues: number[], rerollCondition: Rer
   }
 
   return [rerolledValues, diceToSum]
+}
+
+export const countDice = (die: number, condition: RerollCondition, countType: string, target?: number, hasDifficulty?: boolean, difficultyCondition?: RerollCondition, difficultyTarget?: number): number => {
+  const difficultyModifier = Number(rollMatchesTarget(die, difficultyCondition ?? '=', difficultyTarget ?? 0))
+  
+  if (countType === 'cs' || countType === 'cf')
+    return Math.max(Number(rollMatchesTarget(die, condition ?? '=', target ?? 0)) - difficultyModifier, -1)
+  if (countType === 'odd' || countType === 'even')
+    return Math.max(Number(rollMatchesTarget(die, countType, 0)) - difficultyModifier, -1)
+
+  return die
 }
 

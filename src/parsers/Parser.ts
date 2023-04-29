@@ -2,15 +2,16 @@ import type {ParseResultType, RerollCondition} from '../types'
 import {
   getMultipleDiceRolls,
   getMultipleDiceRollsUntil, recursiveRerollDice,
-  rerollDice
+  rerollDice, countDice
 } from './RollsProvider'
 import {DiceKeepTypes, ExplodeMap, ExplodeTypes, ExplodeUntilTypes, MinMaxTypes} from "../types";
 import {findGreatestN, findSmallestN} from "../utils/peaks";
 import {sumArray} from "../utils/sum";
 
-const ALL_TYPES_OF_DICE_REGEX = /(?:\d+d\d+)(?:rr|r|xo|x|kh|kl|dh|dl|min|max|even|odd|cs|cf)?(?:>=|<=|>|<|=)?\d*/gim
+const ALL_TYPES_OF_DICE_REGEX = /(?:\d+d\d+)(?:rr|r|xo|x|kh|kl|dh|dl|min|max|even|odd|cs|cf)?(?:>=|<=|>|<|=)?(\d)*(df)?(>=|<=|>|<|=)?(\d+)?/gim
 const REROLL_DICE_REGEX = /^(\d+)d(\d+)(rr|r)(>=|<=|>|<)?(\d+)$/gim
 const EXPLODING_DICE_REGEX = /^(\d+)d(\d+)(x<|x>|xo|x)(\d+)(kh|kl|dl|dh|min|max|)?(\d+)?$/gim
+const COUNT_DICE_REGEX = /^(\d+)d(\d+)(cs|cf|even|odd)(>=|<=|>|<|=)?(\d+)?(df)?(>=|<=|>|<|=)?(\d+)?$/gim
 const STANDARD_DICE_REGEX = /^(\d+)d(\d+)(kh|kl|dl|dh|min|max|)?(\d+)?$/gim
 
 const explodeToSignMap: ExplodeMap = {
@@ -66,6 +67,58 @@ export const parseOriginalString = (parsedObj: ParseResultType): ParseResultType
   return {...parsedObj, parsed: parsedWithResults}
 }
 
+export const countDiceParser = (parsedObj: ParseResultType): ParseResultType => {
+  const parsedResults = parsedObj.results.map((result) => {
+    const {m} = result
+    if (!m.match(COUNT_DICE_REGEX)) return result
+
+    const [_, numberOfDiceString, diceValueString, countType, condition, targetNumberString, difficulty, difficultyCondition, difficultyTarget] = COUNT_DICE_REGEX.exec(m) as RegExpExecArray
+    const numberOfDice = Number(numberOfDiceString)
+    const diceValue = Number(diceValueString)
+    const targetNumber = Number(targetNumberString);
+    const difficultyTargetNumber = Number(difficultyTarget);
+
+    const diceRolls = getMultipleDiceRolls(numberOfDice, diceValue)
+    const countedDice = Math.abs(diceRolls.reduce((acc, cur) =>
+      acc + countDice(cur, condition as RerollCondition, countType, targetNumber, !!difficulty, difficultyCondition as RerollCondition, difficultyTargetNumber), 0))
+
+    return {
+      ...result,
+      rolls: diceRolls,
+      successes: countedDice,
+      fails: diceRolls.length - countedDice
+    }
+  })
+
+  return {...parsedObj, results: parsedResults}
+}
+
+export const explodingDiceParser = (parsedObj: ParseResultType): ParseResultType => {
+  const parsedResults = parsedObj.results.map((result) => {
+    const {m} = result
+    if (!m.match(EXPLODING_DICE_REGEX)) return result
+
+    const [_, numberOfDiceString, diceValueString, explodeType, targetNumberString, keepType, keepCount] = EXPLODING_DICE_REGEX.exec(m) as RegExpExecArray
+    const numberOfDice = Number(numberOfDiceString)
+    const diceValue = Number(diceValueString)
+    const targetNumber = Number(targetNumberString);
+
+    const diceRolls = getMultipleDiceRollsUntil(diceValue, explodeToSignMap[explodeType as keyof typeof explodeToSignMap], targetNumber, numberOfDice)
+
+    if (!keepType) {
+      return {...result, rolls: diceRolls, result: sumArray(diceRolls)}
+    }
+
+    return {
+      ...result,
+      rolls: diceRolls,
+      result: sumArray(applyEndModifiers(keepType as DiceKeepTypes, Number(keepCount ?? 1), diceRolls))
+    }
+  })
+
+  return {...parsedObj, results: parsedResults}
+}
+
 export const rerollDiceParser = (parsedObj: ParseResultType): ParseResultType => {
   const parsedResults = parsedObj.results.map((result) => {
     const {m} = result
@@ -113,32 +166,6 @@ export const standardDiceParser = (parsedObj: ParseResultType): ParseResultType 
   return {...parsedObj, results: parsedResults}
 }
 
-export const explodingDiceParser = (parsedObj: ParseResultType): ParseResultType => {
-  const parsedResults = parsedObj.results.map((result) => {
-    const {m} = result
-    if (!m.match(EXPLODING_DICE_REGEX)) return result
-
-    const [_, numberOfDiceString, diceValueString, explodeType, targetNumberString, keepType, keepCount] = EXPLODING_DICE_REGEX.exec(m) as RegExpExecArray
-    const numberOfDice = Number(numberOfDiceString)
-    const diceValue = Number(diceValueString)
-    const targetNumber = Number(targetNumberString);
-
-    const diceRolls = getMultipleDiceRollsUntil(diceValue, explodeToSignMap[explodeType as keyof typeof explodeToSignMap], targetNumber, numberOfDice)
-
-    if (!keepType) {
-      return {...result, rolls: diceRolls, result: sumArray(diceRolls)}
-    }
-
-    return {
-      ...result,
-      rolls: diceRolls,
-      result: sumArray(applyEndModifiers(keepType as DiceKeepTypes, Number(keepCount ?? 1), diceRolls))
-    }
-  })
-
-  return {...parsedObj, results: parsedResults}
-}
-
 export const parse = (text: string): ParseResultType => {
   let parsedObj: ParseResultType = {original: text, parsed: text, wasSuccessful: true, results: []}
 
@@ -151,6 +178,7 @@ export const parse = (text: string): ParseResultType => {
       return {m: res, start, end}
     })
 
+    parsedObj = countDiceParser(parsedObj)
     parsedObj = explodingDiceParser(parsedObj)
     parsedObj = rerollDiceParser(parsedObj)
     parsedObj = standardDiceParser(parsedObj)
