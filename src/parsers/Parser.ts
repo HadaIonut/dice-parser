@@ -19,6 +19,7 @@ const ALL_TYPES_OF_DICE_REGEX = /(?:\d+d\d+)(?:rr|r|xo|x|kh|kl|dh|dl|k|d|sf|min|
 const REROLL_DICE_REGEX = /^(\d+)d(\d+)(rr|r)(>=|<=|>|<)?(\d+)$/gim
 const EXPLODING_DICE_REGEX = /^(\d+)d(\d+)(x<|x>|xo|x)(\d+)(kh|kl|dh|dl|k|d|min|max)?(\d+)?$/gim
 const COUNT_DICE_REGEX = /^(\d+)d(\d+)(cs|cf|even|odd)(>=|<=|>|<|=)?(\d+)?(df|x)?(>=|<=|>|<|=)?(\d+)?$/gim
+const CONDITIONAL_SUBTRACT_REGEX = /^(\d+)d(\d+)(sf)(>=|<=|>|<|=)?(\d+)$/gim
 const STANDARD_DICE_REGEX = /^(\d+)d(\d+)(kh|kl|dh|dl|k|d|min|max|)?(\d+)?$/gim
 
 const explodeToSignMap: ExplodeMap = {
@@ -149,6 +150,29 @@ export const rerollDiceParser = (result: ParsedDiceResultType): ParseResultType 
   }
 }
 
+export const conditionalSubtractionParser = (result: ParsedDiceResultType): ParseResultType => {
+  const {m} = result
+  if (!m.match(CONDITIONAL_SUBTRACT_REGEX)) return result
+
+  const [_, numberOfDiceString, diceValueString, _1,  condition, targetString] = CONDITIONAL_SUBTRACT_REGEX.exec(m) as RegExpExecArray
+  const numberOfDice = Number(numberOfDiceString)
+  const diceValue = Number(diceValueString)
+  const targetValue = Number(targetString)
+
+  const diceRolls = getMultipleDiceRolls(numberOfDice, diceValue)
+
+  return {
+    ...result,
+    rolls: diceRolls,
+    result: diceRolls.reduce((acc, cur) => {
+      if (!rollMatchesTarget(cur, condition as RerollCondition, targetValue)) {
+        return acc + cur
+      }
+      return acc
+    }, 0)
+  }
+}
+
 export const standardDiceParser = (result: ParsedDiceResultType): ParseResultType => {
   const {m} = result
   if (!m.match(STANDARD_DICE_REGEX)) return result
@@ -185,7 +209,7 @@ export const parse = (text: string): ParseResultType => {
       return {m: res, start, end}
     })
 
-    const parsingFunctionArray = [countDiceParser, explodingDiceParser, rerollDiceParser, standardDiceParser]
+    const parsingFunctionArray = [countDiceParser, explodingDiceParser, rerollDiceParser, standardDiceParser, conditionalSubtractionParser]
 
     parsingFunctionArray.forEach((mappingFunction) => {
       parsedObj = parseDiceTypes(parsedObj, mappingFunction)
