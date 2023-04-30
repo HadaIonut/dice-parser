@@ -197,7 +197,7 @@ export const parseDiceTypes = (parsedObj: ParseResultType, mappingFunction: Dice
   return {...parsedObj, results: parsedResults}
 }
 
-export const parse = (text: string): ParseResultType => {
+export const parseDiceRolls = (text: string): ParseResultType => {
   let parsedObj: ParseResultType = {original: text, parsed: text, wasSuccessful: true, results: []}
 
   try {
