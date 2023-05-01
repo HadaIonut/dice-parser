@@ -1,6 +1,6 @@
 import {parse, parseDiceRolls} from './parsers/Parser'
 
-(async () => {
+const runFunctionExamples = () => {
   const testText = `
     1d2 1d2 1d4 1d6 1d8 1d10 1d12 1d20 1d100 2d20 20d20 200d20
     1d10r1 2d20r<10 2d20rr<15 5d10x10 1d20x<10kh 1d20x>10kh 6d10xo10
@@ -16,9 +16,7 @@ import {parse, parseDiceRolls} from './parsers/Parser'
     1d6 / 2d4
   `
   const result = parseDiceRolls(testText)
-  // console.log(result.original)
-  // console.log(result.parsed)
-  console.log(result.results)
+  console.log(result)
 
   console.log(parse('ana are [[2 +4*(3+4) /5]] mere si [[ 5 + 7 ]] pere'))
   console.log(parse('/r 2 + 6'))
@@ -26,6 +24,8 @@ import {parse, parseDiceRolls} from './parsers/Parser'
   console.log(parse('ana are [[2d6 +4d4*(1d8+4) /5]] mere si [[ 5 + 7 ]] pere, merele s-au calculat cu 2d6 +4d4'))
   console.log(parse('/r 2d6 test'))
   debugger
-})()
+}
+
+runFunctionExamples()
 
 export { }

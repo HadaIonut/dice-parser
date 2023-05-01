@@ -38,7 +38,7 @@ export type ExplodeTypes = 'x' | 'x<' | 'x>' | 'xo'
 
 export type ExplodeMap = {[key in ExplodeTypes] : ExplodeUntilTypes}
 
-export type DiceKeepTypes = 'kh' | 'kl' | 'dl' | 'dh' | 'k'
+export type DiceKeepTypes = 'kh' | 'kl' | 'dl' | 'dh' | 'k' | 'd'
 
 export type MinMaxTypes = 'min' | 'max' | undefined
 
