@@ -1,5 +1,4 @@
-import { parseDiceRolls } from './parsers/Parser'
-import {computeMath} from "./mathHandler/computeMath.js";
+import {parse, parseDiceRolls} from './parsers/Parser'
 
 (async () => {
   const testText = `
@@ -20,10 +19,13 @@ import {computeMath} from "./mathHandler/computeMath.js";
   // console.log(result.original)
   // console.log(result.parsed)
   console.log(result.results)
-})()
 
-console.log(computeMath('ana are [[2 +4*(3+4) /5]] mere si [[ 5 + 7 ]] pere'))
-console.log(computeMath('/r 2 + 6'))
-console.log(computeMath('/r 2 + 6 test'))
+  console.log(parse('ana are [[2 +4*(3+4) /5]] mere si [[ 5 + 7 ]] pere'))
+  console.log(parse('/r 2 + 6'))
+  console.log(parse('/r 2d6 + 6d10'))
+  console.log(parse('ana are [[2d6 +4d4*(1d8+4) /5]] mere si [[ 5 + 7 ]] pere, merele s-au calculat cu 2d6 +4d4'))
+  console.log(parse('/r 2d6 test'))
+  debugger
+})()
 
 export { }
