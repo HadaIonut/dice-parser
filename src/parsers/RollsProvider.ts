@@ -105,7 +105,7 @@ export const recursiveRerollDice = (rolledValues: number[], rerollCondition: Rer
   return [rerolledValues, diceToSum]
 }
 
-export const countDice = (die: number, condition: RerollCondition, countType: string, target?: number, hasDifficulty?: boolean, difficultyCondition?: RerollCondition, difficultyTarget?: number): number => {
+export const countDice = (die: number, condition: RerollCondition, countType: string, target?: number, difficultyCondition?: RerollCondition, difficultyTarget?: number): number => {
   const difficultyModifier = Number(rollMatchesTarget(die, difficultyCondition ?? '=', difficultyTarget ?? 0))
   
   if (countType === 'cs' || countType === 'cf')

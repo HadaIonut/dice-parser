@@ -1,61 +1,25 @@
 import type {ParsedDiceResultType, ParseResultType, RerollCondition} from '../types'
-import {DiceKeepTypes, DiceParserMappingFunction, ExplodeMap, MinMaxTypes} from "../types";
+import {DiceKeepTypes, DiceParserMappingFunction} from "../types";
 import {
   countDice,
   explodeArray,
   getMultipleDiceRolls,
   getMultipleDiceRollsUntil,
-  recursiveRerollDice,
-  rerollDice,
   rollMatchesTarget
 } from './RollsProvider'
-import {findGreatestN, findSmallestN} from "../utils/peaks";
 import {sumArray} from "../utils/sum";
 import {math} from "../mathJs";
-
-const ALL_TYPES_OF_DICE_REGEX = /(?:\d+d\d+)(?:rr|r|xo|x|kh|kl|dh|dl|k|d|sf|min|max|even|odd|cs|cf)?(?:>=|<=|>|<|=)?(\d)*(df|x)?(>=|<=|>|<|=)?(\d+)?(kh|kl|dh|dl|k|d)?/gim
-const REROLL_DICE_REGEX = /^(\d+)d(\d+)(rr|r)(>=|<=|>|<)?(\d+)$/gim
-const EXPLODING_DICE_REGEX = /^(\d+)d(\d+)(x<|x>|xo|x)(\d+)(kh|kl|dh|dl|k|d|min|max)?(\d+)?$/gim
-const COUNT_DICE_REGEX = /^(\d+)d(\d+)(cs|cf|even|odd)(>=|<=|>|<|=)?(\d+)?(df|x)?(>=|<=|>|<|=)?(\d+)?$/gim
-const CONDITIONAL_SUBTRACT_REGEX = /^(\d+)d(\d+)(sf)(>=|<=|>|<|=)?(\d+)$/gim
-const STANDARD_DICE_REGEX = /^(\d+)d(\d+)(kh|kl|dh|dl|k|d|min|max|)?(\d+)?$/gim
-
-export const INLINE_EXPRESSION_REGEX = /\[\[([^\]]*)]]/gim
-
-
-const explodeToSignMap: ExplodeMap = {
-  x: '=',
-  'x<': '<',
-  'x>': '>',
-  'xo': 'o'
-}
-
-export const keepDice = (keepType: DiceKeepTypes, keepCount: number, diceRolls: number[]) => {
-  if (keepType === 'kh' || keepType === 'k') return findGreatestN(diceRolls, keepCount)
-  if (keepType === 'kl') return findSmallestN(diceRolls, keepCount)
-  if (keepType === 'dh') return findSmallestN(diceRolls, diceRolls.length - keepCount)
-  if (keepType === 'dl') return findGreatestN(diceRolls, diceRolls.length - keepCount)
-
-  return diceRolls
-}
-
-export const applyMinMax = (modifierType: MinMaxTypes, modifierCap: number, diceRolls: number[]) => {
-  if (modifierType === 'min') return diceRolls.map((roll) => roll <= modifierCap ? modifierCap : roll)
-  if (modifierType === 'max') return diceRolls.map((roll) => roll >= modifierCap ? modifierCap : roll)
-
-  return diceRolls
-}
-
-export const applyEndModifiers = (modifier: DiceKeepTypes | MinMaxTypes, target: number = 1, diceRolls: number[]) => {
-  return applyMinMax(modifier as MinMaxTypes, target, keepDice(modifier as DiceKeepTypes, target, diceRolls))
-}
-
-export const getRerollValues = (rolledValues: number[], rerollCondition: RerollCondition, rerollTarget: number, diceType: number, rerollType: string) => {
-  if (rerollType === 'r') return rerollDice(rolledValues, rerollCondition as RerollCondition ?? '=', rerollTarget, diceType)
-  if (rerollType === 'rr') return recursiveRerollDice(rolledValues, rerollCondition as RerollCondition ?? '=', rerollTarget, diceType)
-
-  return [[], rolledValues]
-}
+import {
+  ALL_TYPES_OF_DICE_REGEX,
+  CONDITIONAL_SUBTRACT_REGEX,
+  COUNT_DICE_REGEX,
+  EXPLODING_DICE_REGEX,
+  INLINE_EXPRESSION_REGEX,
+  REROLL_DICE_REGEX, STANDARD_DICE_REGEX
+} from "../constants/diceRegex";
+import {explodeToSignMap} from "../constants/conversionMaps";
+import {applyEndModifiers, getRerollValues} from "../utils/diceModifiers";
+import {computeFullExpression, computeInlineExpression} from "../utils/computes";
 
 export const parseOriginalString = (parsedObj: ParseResultType): ParseResultType => {
   const {parsed, results} = parsedObj
@@ -76,7 +40,7 @@ export const parseOriginalString = (parsedObj: ParseResultType): ParseResultType
   return {...parsedObj, parsed: parsedWithResults}
 }
 
-export const countDiceParser = (result: ParsedDiceResultType): ParseResultType => {
+export const countDiceParser = (result: ParsedDiceResultType): ParsedDiceResultType => {
   const {m} = result
   if (!m.match(COUNT_DICE_REGEX)) return result
 
@@ -93,10 +57,10 @@ export const countDiceParser = (result: ParsedDiceResultType): ParseResultType =
     diceRolls = explodeArray(diceRolls, condition as RerollCondition, difficultyTargetNumber, diceValue)
 
     countedDice = Math.abs(diceRolls.reduce((acc, cur) =>
-      acc + countDice(cur, condition as RerollCondition, countType, targetNumber, !!difficulty, "=", -1), 0))
+      acc + countDice(cur, condition as RerollCondition, countType, targetNumber, "=", -1), 0))
   } else {
     countedDice = Math.abs(diceRolls.reduce((acc, cur) =>
-      acc + countDice(cur, condition as RerollCondition, countType, targetNumber, !!difficulty, difficultyCondition as RerollCondition, difficultyTargetNumber), 0))
+      acc + countDice(cur, condition as RerollCondition, countType, targetNumber, difficultyCondition as RerollCondition, difficultyTargetNumber), 0))
   }
 
   return {
@@ -108,7 +72,7 @@ export const countDiceParser = (result: ParsedDiceResultType): ParseResultType =
   }
 }
 
-export const explodingDiceParser = (result: ParsedDiceResultType): ParseResultType => {
+export const explodingDiceParser = (result: ParsedDiceResultType): ParsedDiceResultType => {
   const {m} = result
   if (!m.match(EXPLODING_DICE_REGEX)) return result
 
@@ -130,7 +94,7 @@ export const explodingDiceParser = (result: ParsedDiceResultType): ParseResultTy
   }
 }
 
-export const rerollDiceParser = (result: ParsedDiceResultType): ParseResultType => {
+export const rerollDiceParser = (result: ParsedDiceResultType): ParsedDiceResultType => {
   const {m} = result
   if (!m.match(REROLL_DICE_REGEX)) return result
 
@@ -151,11 +115,11 @@ export const rerollDiceParser = (result: ParsedDiceResultType): ParseResultType 
   }
 }
 
-export const conditionalSubtractionParser = (result: ParsedDiceResultType): ParseResultType => {
+export const conditionalSubtractionParser = (result: ParsedDiceResultType): ParsedDiceResultType => {
   const {m} = result
   if (!m.match(CONDITIONAL_SUBTRACT_REGEX)) return result
 
-  const [_, numberOfDiceString, diceValueString, _1,  condition, targetString] = CONDITIONAL_SUBTRACT_REGEX.exec(m) as RegExpExecArray
+  const [_, numberOfDiceString, diceValueString, _1, condition, targetString] = CONDITIONAL_SUBTRACT_REGEX.exec(m) as RegExpExecArray
   const numberOfDice = Number(numberOfDiceString)
   const diceValue = Number(diceValueString)
   const targetValue = Number(targetString)
@@ -174,7 +138,7 @@ export const conditionalSubtractionParser = (result: ParsedDiceResultType): Pars
   }
 }
 
-export const standardDiceParser = (result: ParsedDiceResultType): ParseResultType => {
+export const standardDiceParser = (result: ParsedDiceResultType): ParsedDiceResultType => {
   const {m} = result
   if (!m.match(STANDARD_DICE_REGEX)) return result
 
@@ -202,12 +166,12 @@ export const parseDiceRolls = (text: string): ParseResultType => {
   let parsedObj: ParseResultType = {original: text, parsed: text, wasSuccessful: true, results: []}
 
   try {
-    parsedObj.results = Array.from(text.matchAll(ALL_TYPES_OF_DICE_REGEX), (m) => {
+    parsedObj.results = Array.from(text.matchAll(ALL_TYPES_OF_DICE_REGEX), (m): ParsedDiceResultType => {
       const res = m[0]
       const {index: start} = m
       const end = start as number + res.length
 
-      return {m: res, start, end}
+      return {m: res, start: start ?? 0, end, rolls: [], result: -1}
     })
 
     const parsingFunctionArray = [countDiceParser, explodingDiceParser, rerollDiceParser, standardDiceParser, conditionalSubtractionParser]
@@ -222,33 +186,6 @@ export const parseDiceRolls = (text: string): ParseResultType => {
     parsedObj.wasSuccessful = false
     return parsedObj
   }
-}
-
-export const computeInlineExpression = (computedObject: ParseResultType): ParseResultType => {
-  if (!computedObject.parsed.match(INLINE_EXPRESSION_REGEX)) return computedObject
-
-  computedObject.parsed = computedObject.parsed.replace(INLINE_EXPRESSION_REGEX, (_, equation) => {
-    const parsedDiceRolls = parseDiceRolls(equation)
-    computedObject.wasSuccessful = parsedDiceRolls.wasSuccessful
-    computedObject.results.push(...parsedDiceRolls.results)
-
-    return `[[${math.evaluate(parsedDiceRolls.parsed)}]]`
-  })
-
-  return computedObject
-}
-
-export const computeFullExpression = (computedObject: ParseResultType): ParseResultType => {
-  if (computedObject.parsed.startsWith('/r')) {
-    const rollExpression = computedObject.parsed.replace('/r', '')
-    const parsedDiceRolls = parseDiceRolls(rollExpression)
-    computedObject.results.push(...parsedDiceRolls.results)
-    computedObject.wasSuccessful = parsedDiceRolls.wasSuccessful
-
-    computedObject.parsed = math.evaluate(parsedDiceRolls.parsed)
-  }
-
-  return computedObject
 }
 
 export const parse = (text: string): ParseResultType => {

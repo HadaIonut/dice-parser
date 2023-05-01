@@ -14,7 +14,16 @@ export type RandomIntegerParamsType = {
   max?: number
 }
 
-export type ParsedDiceResultType = any
+export type ParsedDiceResultType = {
+  m: string
+  start: number
+  end: number
+  rolls: number[]
+  rollsUsed?: number[]
+  successes?: number
+  fails?: number
+  result: number
+}
 
 export type ParseResultType = {
   original: string,
@@ -35,4 +44,4 @@ export type MinMaxTypes = 'min' | 'max' | undefined
 
 export type RerollCondition = '>='|'<='|'>'|'<'|'='|'odd'|'even'
 
-export type DiceParserMappingFunction = (result: ParsedDiceResultType) => ParseResultType
+export type DiceParserMappingFunction = (result: ParsedDiceResultType) => ParsedDiceResultType
