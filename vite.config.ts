@@ -1,6 +1,7 @@
 import {name as moduleName, production as isModuleInProductionMode} from './package.json'
 import {resolve} from 'path'
-import {normalizePath, defineConfig} from 'vite'
+import {normalizePath} from 'vite'
+import {defineConfig} from 'vitest/config'
 import * as fs from 'node:fs/promises'
 import glob from 'fast-glob'
 
