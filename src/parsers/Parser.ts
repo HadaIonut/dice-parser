@@ -115,7 +115,8 @@ export const explodingDiceParser = (result: ParsedDiceResultType): ParsedDiceRes
   return {
     ...result,
     rolls: diceRolls,
-    result: sumArray(applyEndModifiers(keepType as DiceKeepTypes, Number(keepCount ?? 1), diceRolls))
+    result: sumArray(applyEndModifiers(keepType as DiceKeepTypes, Number(keepCount ?? 1), diceRolls)),
+    rollsUsed: applyEndModifiers(keepType as DiceKeepTypes, Number(keepCount ?? 1), diceRolls)
   }
 }
 
@@ -207,7 +208,8 @@ export const standardDiceParser = (result: ParsedDiceResultType): ParsedDiceResu
   return {
     ...result,
     rolls: diceRolls,
-    result: sumArray(applyEndModifiers(keepType as DiceKeepTypes, Number(keepCount ?? 1), diceRolls))
+    result: sumArray(applyEndModifiers(keepType as DiceKeepTypes, Number(keepCount ?? 1), diceRolls)),
+    rollsUsed: applyEndModifiers(keepType as DiceKeepTypes, Number(keepCount ?? 1), diceRolls)
   }
 }
 

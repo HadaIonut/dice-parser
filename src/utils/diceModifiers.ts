@@ -6,7 +6,7 @@ export const keepDice = (keepType: DiceKeepTypes, keepCount: number, diceRolls: 
   if (keepType === 'kh' || keepType === 'k') return findGreatestN(diceRolls, keepCount)
   if (keepType === 'kl') return findSmallestN(diceRolls, keepCount)
   if (keepType === 'dh') return findSmallestN(diceRolls, diceRolls.length - keepCount)
-  if (keepType === 'dl') return findGreatestN(diceRolls, diceRolls.length - keepCount)
+  if (keepType === 'dl' || keepType === 'd') return findGreatestN(diceRolls, diceRolls.length - keepCount)
 
   return diceRolls
 }

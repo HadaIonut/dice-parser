@@ -12,7 +12,7 @@
   "scripts": {
     "build": "vite build",
     "start": "node dist/index.js",
-    "test": "node dist/index3.js"
+    "test": "vitest"
   },
   "devDependencies": {
     "fast-glob": "^3.2.12",

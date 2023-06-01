@@ -8,7 +8,10 @@ describe('dice with reroll', () => {
   it('should reroll 1s', () => {
     const rerollResult = parsedReroll.results[0]
 
-    const numberOfRerolls = rerollResult.rolls.filter((roll) => roll === 1).length
+    const numberOfOnes = rerollResult.rolls.filter((roll) => roll === 1).length
+    const numberOfOnesUsed = rerollResult.rollsUsed?.filter((roll) => roll === 1).length ?? 0
+
+    const numberOfRerolls = numberOfOnes - numberOfOnesUsed
 
     expect(rerollResult.rolls.length).eq(10 + numberOfRerolls)
 
