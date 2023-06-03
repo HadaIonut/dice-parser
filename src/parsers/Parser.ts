@@ -77,7 +77,7 @@ export const countDiceParser = (result: ParsedDiceResultType): ParsedDiceResultT
   return {
     ...result,
     rolls: diceRolls,
-    result: countType === 'cs' ? countedDice : diceRolls.length - countedDice,
+    result: countType === 'cf' ?  diceRolls.length - countedDice : countedDice,
     successes: countedDice,
     fails: diceRolls.length - countedDice
   }
