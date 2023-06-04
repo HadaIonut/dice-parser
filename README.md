@@ -1,4 +1,5 @@
 # Dice Parser
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A0A32J9GM)
 
 This dice parsing library is indented to be the final dice parsing library.
 

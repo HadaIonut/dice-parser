@@ -5,6 +5,8 @@
   "description": "A small library based on mathJs that parses dice rolls, either by replacing the formula in the middle of a text, or by having a special command",
   "main": "dist/index.js",
   "types": "src/types.d.ts",
+  "license": "MIT",
+  "keywords": ["DND", "dnd", "dice", "parsing"],
   "repository": {
     "type": "git",
     "url": "https://github.com/HadaIonut/dice-parser"
