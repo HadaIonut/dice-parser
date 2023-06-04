@@ -4,7 +4,7 @@
   "type": "module",
   "description": "A small library based on mathJs that parses dice rolls, either by replacing the formula in the middle of a text, or by having a special command",
   "main": "dist/index.js",
-  "types": "src/types.d.ts",
+  "types": "dist/index.d.ts",
   "license": "MIT",
   "keywords": [
     "DND",
