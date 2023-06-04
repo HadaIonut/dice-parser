@@ -4,6 +4,7 @@ import {normalizePath} from 'vite'
 import {defineConfig} from 'vitest/config'
 import * as fs from 'node:fs/promises'
 import glob from 'fast-glob'
+import dts from "vite-plugin-dts";
 
 const input = await glob('src/**/!(*.d).(js|ts)')
 
@@ -31,6 +32,8 @@ export default defineConfig({
       },
     },
   },
-  plugins: [],
+  plugins: [dts({
+    insertTypesEntry: true,
+  })],
 })
 
