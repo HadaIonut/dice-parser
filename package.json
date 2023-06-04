@@ -1,6 +1,6 @@
 {
   "name": "dice-parsering-library",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "A small library based on mathJs that parses dice rolls, either by replacing the formula in the middle of a text, or by having a special command",
   "main": "dist/index.js",
