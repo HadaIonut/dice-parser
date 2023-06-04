@@ -33,6 +33,7 @@ export default defineConfig({
     },
   },
   plugins: [dts({
+    copyDtsFiles: true,
     insertTypesEntry: true,
   })],
 })
