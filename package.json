@@ -1,14 +1,22 @@
 {
-  "name": "dice-parser",
+  "name": "dice-parsering-library",
   "version": "1.0.0",
   "type": "module",
+  "description": "A small library based on mathJs that parses dice rolls, either by replacing the formula in the middle of a text, or by having a special command",
+  "main": "dist/index.js",
+  "types": "src/types.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HadaIonut/dice-parser"
+  },
   "exports": {
     ".": "./dist/index.js"
   },
   "files": [
     "dist"
   ],
-  "production": false,
+  "production": true,
+  "prepublish": "vite build",
   "scripts": {
     "build": "vite build",
     "start": "node dist/index.js",
